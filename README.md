@@ -1,5 +1,7 @@
 # Introducing the sps_mqtt_bridge gem
 
+    require 'sps_mqtt_bridge'
+
     bridge = SpsMqttBridge.new
     bridge.mqtt_to_sps
 
@@ -50,4 +52,3 @@ Note: *sps* in this example points to *192.168.4.171*.
 * [jrobertson/sps_mqtt_bridge](https://github.com/jrobertson/sps_mqtt_bridge)
 
 sps mqtt bridge gem sps_mqtt_bridge
-
