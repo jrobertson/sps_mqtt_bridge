@@ -1,7 +1,7 @@
 # Introducing the sps_mqtt_bridge gem
 
-  bridge = SpsMqttBridge.new
-  bridge.mqtt_to_sps
+    bridge = SpsMqttBridge.new
+    bridge.mqtt_to_sps
 
 The above example will subscribe to all topics on an MQTT broker at address 'mqtt' using port '1883' and publish the received messages to the SPS broker at address 'sps' using port '59000'.
 
