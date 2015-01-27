@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'sps_mqtt_bridge'
-  s.version = '0.1.0'
+  s.version = '0.1.1'
   s.summary = 'Subscribes and re-publishes messages automatically from MQTT to SPS or vice versa'
   s.authors = ['James Robertson']
   s.files = Dir['lib/sps_mqtt_bridge.rb']

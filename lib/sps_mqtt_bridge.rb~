@@ -10,8 +10,8 @@ require 'sps-pub'
 class SpsMqttBridge
 
   def initialize(mqtt: {address: 'mqtt', port: '1883'}, 
-     sps:{address: 'sps', port: '59000'}, sps2:{address: 'sps', port: '59000'})
-    @mqtt, @sps, @sps2 = mqtt, sps, sps2
+                                        sps:{address: 'sps', port: '59000'})
+    @mqtt, @sps = mqtt, sps
   end
 
   def mqtt_to_sps(topic: '#')
@@ -34,18 +34,6 @@ class SpsMqttBridge
         MQTT::Client.connect(@mqtt[:address], @mqtt[:port]) do |client|
           client.publish(t, message)
         end
-      end
-    end
-  end
-
-  def sps_to_sps(topic: '#')
-
-    SimplePubSub::Client.connect(@sps[:address], @sps[:port]) do |client|
-
-      client.get(topic) do |t, message|
-
-        SPSPub.notice [t, message].join(': '), 
-                                address: @sps2[:address], port: @sps2[:port]
       end
     end
   end
