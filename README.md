@@ -1,3 +1,23 @@
+# Sending an SPS message via HTTP using the sps_mqtt_bridge gem
+
+    require 'sps_mqtt_bridge'
+
+    bridge = SpsMqttBridge.new host: '192.168.4.140', port: 59000
+    bridge.sps_to_http(topic: 'rosa',  \
+      url: "http://94.34.11.123/do/sps/publish?topic=$topic&msg=$msg", \
+      http_auth: ['user', 'password'])
+
+
+The above example shows how the sps_mqtt_bridge can be used to subscribe to an SPS topic, and have any received messages forwarded to a web server.
+
+Notes:
+
+1. The $topic and $msg variables are replaced with the actual string values within the URL
+2. A block can be passed to the *sps_to_http()* method to allow the IP address used in the URL to be refreshed or updated when a new message is received
+3. This example demonstrates publishing a message to a web server which uses basic http authentication. It should be able to publish to a web server which doesn't require authentication, although I haven't tested that as yet.
+
+----------------------------
+
 # Introducing the sps_mqtt_bridge gem
 
     require 'sps_mqtt_bridge'
