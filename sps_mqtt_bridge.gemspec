@@ -1,12 +1,12 @@
 Gem::Specification.new do |s|
   s.name = 'sps_mqtt_bridge'
-  s.version = '0.1.1'
-  s.summary = 'Subscribes and re-publishes messages automatically from MQTT to SPS or vice versa'
+  s.version = '0.3.0'
+  s.summary = 'Subscribes and re-publishes messages automatically from MQTT to SPS or to HTTP'
   s.authors = ['James Robertson']
   s.files = Dir['lib/sps_mqtt_bridge.rb']
-  s.add_runtime_dependency('simplepubsub', '~> 1.1', '>=1.1.6')
-  s.add_runtime_dependency('sps-pub', '~> 0.3', '>=0.3.0')
-  s.add_runtime_dependency('mqtt', '~> 0.2', '>=0.2.0')
+  s.add_runtime_dependency('sps-pub', '~> 0.4', '>=0.4.1')
+  s.add_runtime_dependency('sps-sub', '~> 0.3', '>=0.3.1')
+  s.add_runtime_dependency('mqtt', '~> 0.3', '>=0.3.1')
   s.signing_key = '../privatekeys/sps_mqtt_bridge.pem'
   s.cert_chain  = ['gem-public_cert.pem']
   s.license = 'MIT'

@@ -3,8 +3,11 @@
 # file: sps_mqtt_bridge.rb
 
 require 'mqtt'
-require 'simplepubsub'
+require 'sps-sub'
 require 'sps-pub'
+require 'open-uri' # used sps_to_http
+require 'timeout'  # used sps_to_http
+
 
 
 class SpsMqttBridge
@@ -27,28 +30,57 @@ class SpsMqttBridge
 
   def sps_to_mqtt(topic: '#')
 
-    SimplePubSub::Client.connect(@sps[:address], @sps[:port]) do |client|
+    SPSSub.new(host: @sps[:address], port: @sps[:port]).\
+                                         subscribe(topic: topic) do |message,t|
 
-      client.get(topic) do |t, message|
-
-        MQTT::Client.connect(@mqtt[:address], @mqtt[:port]) do |client|
-          client.publish(t, message)
-        end
+      MQTT::Client.connect(@mqtt[:address], @mqtt[:port]) do |client|
+        client.publish(t, message)
       end
+
     end
   end
 
   def sps_to_sps(topic: '#')
 
-    SimplePubSub::Client.connect(@sps[:address], @sps[:port]) do |client|
+    SPSSub.new(host: @sps[:address], port: @sps[:port]).\
+                                         subscribe(topic: topic) do |message,t|
 
-      client.get(topic) do |t, message|
-
-        SPSPub.notice [t, message].join(': '), 
-                                address: @sps2[:address], port: @sps2[:port]
-      end
+      SPSPub.notice [t, message].join(': '), 
+                                   address: @sps2[:address], port: @sps2[:port]
     end
   end
+  
+  def sps_to_http(topic: '#', url: '', timeout: 5, \
+                                             http_auth: ["user", "password"])
+
+    SPSSub.new(host: @sps[:address], port: @sps[:port]).\
+                                         subscribe(topic: topic) do |message,t|
+      
+      begin
+        
+        Timeout::timeout(timeout){
+
+          ipaddr = url[/https?:\/\/([^\/]+)/,1]
+          ip_address = block_given? ? yield(ipaddr) || ipaddr : ipaddr
+          full_url = url.sub(/(https?:\/\/)([^\/]+)/,'\1' + ip_address).\
+                                      sub('$topic', topic).sub('$msg', message)
+          puts 'full_url : ' + full_url.inspect
+          buffer = open(full_url, read_timeout: timeout,\
+                      http_basic_authentication: http_auth).read
+
+        }
+      rescue Timeout::Error => e
+        
+        puts 'connection timed out'
+        
+      rescue OpenURI::HTTPError => e
+        
+        puts '400 bad request'
+        
+      end
+
+    end
+  end  
 end
 
 if __FILE__ == $0 then
