@@ -13,7 +13,8 @@ require 'timeout'  # used sps_to_http
 class SpsMqttBridge
 
   def initialize(mqtt: {address: 'mqtt', port: '1883'}, 
-     sps:{address: 'sps', port: '59000'}, sps2:{address: 'sps', port: '59000'})
+     sps:{host: 'sps', address: host, port: '59000'}, 
+                 sps2:{address: 'sps', port: '59000'})
     @mqtt, @sps, @sps2 = mqtt, sps, sps2
   end
 
@@ -53,9 +54,10 @@ class SpsMqttBridge
   def sps_to_http(topic: '#', url: '', timeout: 5, \
                                              http_auth: ["user", "password"])
 
-    SPSSub.new(host: @sps[:address], port: @sps[:port]).\
-                                         subscribe(topic: topic) do |message,t|
-      
+    sps = SPSSub.new(host: @sps[:address], port: @sps[:port])
+
+    sps.subscribe(topic: topic) do |message,t|
+   
       begin
         
         Timeout::timeout(timeout){
@@ -63,8 +65,8 @@ class SpsMqttBridge
           ipaddr = url[/https?:\/\/([^\/]+)/,1]
           ip_address = block_given? ? yield(ipaddr) || ipaddr : ipaddr
           full_url = url.sub(/(https?:\/\/)([^\/]+)/,'\1' + ip_address).\
-                                      sub('$topic', topic).sub('$msg', message)
-          puts 'full_url : ' + full_url.inspect
+                                      sub('$topic', t).sub('$msg', message)
+
           buffer = open(full_url, read_timeout: timeout,\
                       http_basic_authentication: http_auth).read
 
