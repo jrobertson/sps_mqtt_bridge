@@ -12,8 +12,8 @@ require 'timeout'  # used sps_to_http
 
 class SpsMqttBridge
 
-  def initialize(mqtt: {address: 'mqtt', port: '1883'}, 
-     sps:{host: 'sps', address: host, port: '59000'}, 
+  def initialize(mqtt: {address: 'mqtt', port: '1883'},
+     sps:{host: 'sps', address: host, port: '59000'},
                  sps2:{address: 'sps', port: '59000'})
     @mqtt, @sps, @sps2 = mqtt, sps, sps2
   end
@@ -23,7 +23,7 @@ class SpsMqttBridge
     MQTT::Client.connect(@mqtt[:address], @mqtt[:port]) do |client|
 
       client.get(topic) do |t, message|
-        SPSPub.notice [t, message].join(': '), 
+        SPSPub.notice [t, message].join(': '),
                                 address: @sps[:address], port: @sps[:port]
       end
     end
@@ -46,20 +46,20 @@ class SpsMqttBridge
     SPSSub.new(host: @sps[:address], port: @sps[:port]).\
                                          subscribe(topic: topic) do |message,t|
 
-      SPSPub.notice [t, message].join(': '), 
+      SPSPub.notice [t, message].join(': '),
                                    address: @sps2[:address], port: @sps2[:port]
     end
   end
-  
+
   def sps_to_http(topic: '#', url: '', timeout: 5, \
                                              http_auth: ["user", "password"])
 
     sps = SPSSub.new(host: @sps[:address], port: @sps[:port])
 
     sps.subscribe(topic: topic) do |message,t|
-   
+
       begin
-        
+
         Timeout::timeout(timeout){
 
           ipaddr = url[/https?:\/\/([^\/]+)/,1]
@@ -67,22 +67,22 @@ class SpsMqttBridge
           full_url = url.sub(/(https?:\/\/)([^\/]+)/,'\1' + ip_address).\
                                       sub('$topic', t).sub('$msg', message)
 
-          buffer = open(full_url, read_timeout: timeout,\
+          buffer = URI.open(full_url, read_timeout: timeout,\
                       http_basic_authentication: http_auth).read
 
         }
       rescue Timeout::Error => e
-        
+
         puts 'connection timed out'
-        
+
       rescue OpenURI::HTTPError => e
-        
+
         puts '400 bad request'
-        
+
       end
 
     end
-  end  
+  end
 end
 
 if __FILE__ == $0 then
